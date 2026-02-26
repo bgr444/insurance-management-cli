@@ -17,6 +17,7 @@ public abstract class Insurance {
         this.endDate = endDate;
     }
 
+    public abstract Insurance copy();
     public abstract double calculate(User user);
 
     public String getName() {

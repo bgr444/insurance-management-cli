@@ -9,6 +9,15 @@ public class ResidenceInsurance extends Insurance {
     }
 
     @Override
+    public Insurance copy() {
+        return new ResidenceInsurance(
+                this.getName(),
+                this.getPrice(),
+                this.getStartDate(),
+                this.getEndDate());
+    }
+
+    @Override
     public double calculate(User user) {
         return this.getPrice() * 1.30;
     }

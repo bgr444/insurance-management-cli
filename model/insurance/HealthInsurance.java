@@ -9,17 +9,26 @@ public class HealthInsurance extends Insurance {
         super(name, price, startDate, endDate);
     }
 
-   @Override
+    @Override
+    public Insurance copy() {
+        return new HealthInsurance(
+                this.getName(),
+                this.getPrice(),
+                this.getStartDate(),
+                this.getEndDate());
+    }
+
+    @Override
     public double calculate(User user) {
 
         double ageMultiplier = 1.0;
-        
+
         if (user.getAge() < 18) {
-            ageMultiplier = 0.8; 
+            ageMultiplier = 0.8;
         } else if (user.getAge() > 40) {
-            ageMultiplier = 1.2; 
+            ageMultiplier = 1.2;
         }
-        
+
         return this.getPrice() * ageMultiplier;
     }
 }

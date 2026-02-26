@@ -1,7 +1,9 @@
 package service;
 
+import java.time.LocalDateTime;
 import java.util.TreeSet;
 
+import constant.AuthenticationStatus;
 import exception.AuthException;
 import model.account.Account;
 
@@ -21,9 +23,15 @@ public class AccountManager {
                     // Eğer email tutuyorsa ama şifre yanlışsa AuthException fırlatacak
                     account.login(email, password);
 
-                    // Eğer login başarılıysa (exception fırlamadıysa) hesabı döndür
-                    System.out.println("Login successful! Welcome, " + account.getUser().getName());
-                    return account;
+                    
+                    if (account.getLog() == AuthenticationStatus.SUCCESS) {
+
+                        
+                      
+                        account.getUser().setLastLoginDate(LocalDateTime.now());
+
+                        return account;
+                    }
                 } catch (AuthException e) {
                     // Şifre yanlışsa veya email tutmuyorsa buraya düşer
                     // Ancak döngü devam etmeli çünkü başka bir hesapta o email olabilir

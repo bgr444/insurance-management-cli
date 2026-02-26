@@ -55,6 +55,9 @@ public class User {
     public LocalDateTime getLastLoginDate() {
         return lastLoginDate;
     }
+    public void setLastLoginDate1( LocalDateTime lastLoginDate) {
+         this.lastLoginDate = lastLoginDate;
+    }
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
@@ -67,10 +70,15 @@ public class User {
     public void setLastLoginDate(LocalDateTime lastLoginDate) {
         this.lastLoginDate = lastLoginDate;
     }
-    
 
-
-
+    public void printAddresses() {
+        if (this.addresses != null && !this.addresses.isEmpty()) {
+            for (int i = 0; i < addresses.size(); i++) {
+                System.out.println((i + 1) + "- " + addresses.get(i).getAddressInfo());
+            }
+        } else {
+            System.out.println("No address information found.");
+        }
+    }
 
 }
-

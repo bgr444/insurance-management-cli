@@ -5,17 +5,17 @@ import model.address.BusinessAddress;
 import model.address.HomeAddress;
 import model.account.Enterprise;
 import model.user.User;
-import model.insurance.CarInsurance;
-import model.insurance.HealthInsurance;
-import model.insurance.ResidenceInsurance;
-import model.insurance.TravelInsurance;
 import service.AccountManager;
 import service.AddressManager;
-
+import service.InsuranceManager;
 import java.util.Scanner;
-import java.time.LocalDate;
+import constant.AuthenticationStatus;
+
 
 public class Main {
+    private static Scanner scanner = new Scanner(System.in);
+    private static AccountManager accountManager = new AccountManager();
+
     public static void prepareData(AccountManager manager) {
 
         User u1 = new User("Cem", "Duran", "cem@mail.com", "123", "Developer", 28);
@@ -43,7 +43,7 @@ public class Main {
         AddressManager.addAddress(u2, new BusinessAddress("City Hospital, Ankara"));
 
         AddressManager.addAddress(u3, new BusinessAddress("Logistics Center, Kocaeli"));
-        
+
         AddressManager.addAddress(u4, new HomeAddress("Nilufer, Bursa"));
         AddressManager.addAddress(u4, new BusinessAddress("Industrial Zone, Bursa"));
 
@@ -61,91 +61,185 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        prepareData(accountManager);
+        run();
+    }
+
+    public static void run() {
+        boolean isRunning = true;
+        while (isRunning) {
+            System.out.println("\n--- INSURANCE MANAGEMENT SYSTEM ---");
+            System.out.println("1- LogIn\n2- Create Account\n0- Exit");
+            System.out.print("Selection: ");
+            String pref = scanner.nextLine();
+
+            switch (pref) {
+                case "1" -> loginAction(); 
+                case "2" -> createAccountMenu(); 
+                case "0" -> {
+                    System.out.println("Goodbye!");
+                    isRunning = false;
+                }
+                default -> System.out.println("Invalid option! Try again.");
+            }
+        }
+    }
+
+    public static void createAccountMenu() {
+        System.out.println("\n--- Create New Account ---");
+        System.out.println("1- Individual Account");
+        System.out.println("2- Enterprise Account");
+        System.out.println("0- Cancel");
+        System.out.print("Selection: ");
+        String type = scanner.nextLine();
+
+        if (type.equals("0"))
+            return;
+
         
-        AccountManager manager = new AccountManager();
-        prepareData(manager);
-        Scanner scanner = new Scanner(System.in);
+        System.out.print("Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Surname: ");
+        String surname = scanner.nextLine();
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+        System.out.print("Profession: ");
+        String profession = scanner.nextLine();
+        System.out.print("Age: ");
+        int age = Integer.parseInt(scanner.nextLine());
 
-        LocalDate today = LocalDate.now();
-        LocalDate nextYear = today.plusYears(1);
+        
+        User newUser = new User(name, surname, email, password, profession, age);
+        Account newAccount = null;
 
-        System.out.println("--- Welcome to Insurance System ---");
+        if (type.equals("1")) {
+            newAccount = new Individual(newUser);
+        } else if (type.equals("2")) {
+            newAccount = new Enterprise(newUser);
+        }
 
+        if (newAccount != null) {
+            accountManager.addAccount(newAccount);
+            System.out.println("Account created successfully! You can now log in.");
+        } else {
+            System.out.println("Invalid selection. Account creation failed.");
+        }
+    }
+
+    public static void loginAction() {
         System.out.print("Enter your email: ");
         String email = scanner.nextLine();
+
         System.out.print("Enter your password: ");
         String password = scanner.nextLine();
 
-        Account loggedInAccount = manager.login(email, password);
+        Account loggedInAccount = accountManager.login(email, password);
 
         if (loggedInAccount != null) {
-            boolean exit = false;
-            while (!exit) {
-                System.out.println("\n1- Show My Information");
-                System.out.println("2- Add Adress");
-                System.out.println("3- Add Health Insurance");
-                System.out.println("4- Add Traffic Insurance");
-                System.out.println("5- Add Travel Insurance");
-                System.out.println("6- Add Residence Insurance");
-                System.out.println("0- Logout");
-                System.out.print("Your choice: ");
-                int choice = scanner.nextInt();
+            System.out.println("Login Successful");
 
-                switch (choice) {
-                    case 1:
-                        loggedInAccount.showUserInfo();
-                        break;
-                    case 2:
-                        System.out.println("1- Home Address\n2- Business Address");
-                        int addrType = scanner.nextInt();
-                        scanner.nextLine();
-                        System.out.print("Enter address details: ");
-                        String addrDetail = scanner.nextLine();
-
-                        if (addrType == 1) {
-                            AddressManager.addAddress(loggedInAccount.getUser(), new HomeAddress(addrDetail));
-                        } else {
-                            AddressManager.addAddress(loggedInAccount.getUser(), new BusinessAddress(addrDetail));
-                        }
-                        System.out.println("Address added.");
-                        break;
-
-                    case 3:
-                        HealthInsurance health = new HealthInsurance("General Health", 2000, today, nextYear);
-                        loggedInAccount.addInsurance(health);
-                        System.out.println("Insurance added successfully at calculated price.");
-                        break;
-                    case 4:
-                        CarInsurance car = new CarInsurance("Traffic Insurance", 1500, LocalDate.now(),
-                                LocalDate.now().plusYears(1));
-                        loggedInAccount.addInsurance(car);
-                        System.out.println("Car insurance added.");
-                        break;
-                    case 5:
-                        TravelInsurance trav = new TravelInsurance("Travel Insurance", 1000, LocalDate.now(),
-                                LocalDate.now().plusMonths(1));
-                        loggedInAccount.addInsurance(trav);
-                        System.out.println("Travel insurance added.");
-                        break;
-
-                    case 6:
-                        ResidenceInsurance res = new ResidenceInsurance("Residence Insurance", 2500,
-                                LocalDate.now(), LocalDate.now().plusYears(1));
-                        loggedInAccount.addInsurance(res);
-                        System.out.println("Residence insurance added.");
-                        break;
-                    case 0:
-                        exit = true;
-                        System.out.println("Logging out...");
-                        break;
-                    default:
-                        System.out.println("Invalid choice!");
-                }
-            }
+            accountMenu(loggedInAccount);
         } else {
-            System.out.println("Access Denied. Program terminated.");
+            System.out.println("Invalid email or password!");
+        }
+    }
+
+    public static void accountMenu(Account account) {
+        boolean inAccount = true;
+        while (inAccount) {
+            System.out.println("\n--- WELCOME " + account.getUser().getName().toUpperCase() + " ---");
+            System.out.println("1- Insurance Operations");
+            System.out.println("2- Address Operations");
+            System.out.println("3- My Profile");
+            System.out.println("0- Logout");
+            System.out.print("Enter: ");
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1" -> insuranceSubMenu(account);
+                case "2" -> addressSubMenu(account);
+                case "3" -> account.showUserInfo();
+                case "0" -> {
+                    System.out.println("Logging out...");
+                    account.setLog(AuthenticationStatus.FAIL);
+                    inAccount = false;
+                }
+                default -> System.out.println("Invalid selection!");
+            }
+        }
+    }
+
+    public static void insuranceSubMenu(Account account) {
+
+        InsuranceManager.displayInsuranceProducts();
+
+        System.out.println("0- Back to Menu");
+        System.out.print("Select a product to buy: ");
+
+        String choiceStr = scanner.nextLine();
+        int choice;
+
+        try {
+            choice = Integer.parseInt(choiceStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Please enter a number!");
+            return;
         }
 
-        scanner.close();
+        if (choice == 0)
+            return;
+        InsuranceManager.buyInsurance(account, choice);
+    }
+
+    public static void addressSubMenu(Account account) {
+        System.out.println("\n--- Address Operations ---");
+        System.out.println("1- Add Home Address");
+        System.out.println("2- Add Business Address");
+        System.out.println("3- Remove Address");
+        System.out.println("0- Back");
+        System.out.print("Selection: ");
+
+        String choice = scanner.nextLine();
+
+        switch (choice) {
+            case "1" -> {
+                System.out.print("Enter home address: ");
+                AddressManager.addAddress(account.getUser(), new HomeAddress(scanner.nextLine()));
+                System.out.println("Home address added.");
+            }
+            case "2" -> {
+                System.out.print("Enter business address: ");
+                AddressManager.addAddress(account.getUser(), new BusinessAddress(scanner.nextLine()));
+                System.out.println("Business address added.");
+            }
+            case "3" -> {
+                account.getUser().printAddresses();
+
+                var addresses = account.getUser().getAddresses();
+
+                if (addresses != null && !addresses.isEmpty()) {
+                    System.out.print("Select address number to remove: ");
+
+                    try {
+                        int index = Integer.parseInt(scanner.nextLine()) - 1;
+
+                        if (index >= 0 && index < addresses.size()) {
+
+                            AddressManager.removeAddress(account.getUser(), addresses.get(index));
+                            System.out.println("Address removed successfully.");
+                        } else {
+                            System.out.println("Invalid selection! Please enter a number from the list.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Error: Please enter a valid number!");
+                    }
+                }
+            }
+            case "0" -> {
+            }
+            default -> System.out.println("Invalid selection!");
+        }
     }
 }

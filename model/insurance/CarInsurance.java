@@ -8,6 +8,15 @@ public class CarInsurance extends Insurance {
     public CarInsurance(String name, double price, LocalDate start, LocalDate end) {
         super(name, price, start, end);
     }
+    
+    @Override
+    public Insurance copy() {
+        return new CarInsurance(
+                this.getName(),
+                this.getPrice(),
+                this.getStartDate(),
+                this.getEndDate());
+    }
 
     @Override
     public double calculate(User user) {

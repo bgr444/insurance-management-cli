@@ -1,6 +1,5 @@
 package model.account;
 
-import model.address.IAddress;
 import model.insurance.Insurance;
 import constant.AuthenticationStatus;
 import exception.AuthException;
@@ -17,7 +16,7 @@ public abstract class Account implements Comparable<Account> {
     public Account(User user) {
         this.user = user;
         this.insurances = new ArrayList<>();
-        
+
     }
 
     public void login(String email, String password) throws AuthException {
@@ -41,14 +40,7 @@ public abstract class Account implements Comparable<Account> {
             System.out.println("Last Login: " + user.getLastLoginDate());
 
             System.out.println("--- Address List ---");
-
-            if (user.getAddresses() != null && !user.getAddresses().isEmpty()) {
-                for (IAddress address : user.getAddresses()) {
-                    System.out.println("- " + address.getAddressInfo());
-                }
-            } else {
-                System.out.println("No address information found.");
-            }
+            user.printAddresses();
 
             System.out.println("--- Insurance Policies ---");
             for (Insurance insurance : insurances) {
@@ -104,4 +96,11 @@ public abstract class Account implements Comparable<Account> {
         return this.insurances;
     }
 
+    public void setLog(AuthenticationStatus log) {
+        this.log = log;
+    }
+
+    public AuthenticationStatus getLog() {
+        return log;
+    }
 }
